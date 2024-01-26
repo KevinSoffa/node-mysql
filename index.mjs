@@ -18,33 +18,6 @@ app.set('view engine', 'handlebars');
 // Ponte para os arquivos estáticos
 app.use(express.static('public'));
 
-// Rotas
-app.get('/', (req, res) => {
-    res.render("home");
-});
-
-app.post('/books/insertbook', (req, res) => {
-    const title = req.body.title;
-    const pagesqty = req.body.pagesqty; // Corrigido de pageqty para pagesqty
-
-    // Corrigindo a consulta SQL
-    const sql = 'INSERT INTO books (title, pageqty) VALUES (?, ?)';
-    const values = [title, pagesqty];
-
-    conn.query(sql, values, (err) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).send('Erro interno do servidor');
-        }
-
-        // Fechar a conexão com o banco de dados após a operação
-        conn.end();
-
-        // Redirecionar após o encerramento da conexão
-        res.redirect('/');
-    });
-});
-
 // Conexão com o DB (MySQL)
 const conn = mysql.createConnection({
     host: 'localhost',
@@ -65,4 +38,61 @@ conn.connect((err) => {
     });
 });
 
-console.log("Diretório de trabalho atual:", process.cwd());
+// Rotas
+app.get('/', (req, res) => {
+    res.render('home');
+});
+
+// POST Inserindo dados no banco
+app.post('/books/insertbook', (req, res) => {
+    const title = req.body.title;
+    const pagesqty = req.body.pagesqty;
+
+    // Query SQL
+    const sql = 'INSERT INTO books (title, pagesqty) VALUES (?, ?)';
+    const values = [title, pagesqty];
+
+    conn.query(sql, values, (err) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).send('Erro interno do servidor');
+        }
+
+        // Redirecionar após a operação
+        res.redirect('/books');
+    });
+});
+
+// GET Pegando dados do banco
+app.get('/books', (req, res) => {
+    const sql = 'SELECT * FROM books';
+
+    conn.query(sql, (err, data) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).send('Erro interno do servidor');
+        }
+
+        const books = data;
+        res.render('books', { books });
+    });
+});
+
+// GET ID pegando dados com condição
+app.get('/books/:id', (req, res) => {
+    const id = req.params.id
+    const sql = `SELECT * FROM books WHERE id = ${id}`
+
+    conn.query(sql, function(err, data) {
+        if (err) {
+            console.log(err)
+            return
+        }
+
+        const book = data[0]
+
+        res.render('book', {book})
+    })
+})
+
+console.log('Diretório de trabalho atual:', process.cwd());

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livros cadastrados</title>
+</head>
+<body>
+    <div class="books-container">
+        <h1>Livros Cadastrados</h1>
+        {{#each books}}
+            <div>
+                #{{this.id}} - <span class="bold"> <a href="/books/{{this.id}}">{{this.title}}</span></a> - {{this.pageqty}} páginas
+            </div>
+        {{/each}}
+        <br>
+        <a href="/">Add livro</a>
+    </div>
+</body>
+</html>
