@@ -49,7 +49,7 @@ app.post('/books/insertbook', (req, res) => {
     const pagesqty = req.body.pagesqty;
 
     // Query SQL
-    const sql = 'INSERT INTO books (title, pagesqty) VALUES (?, ?)';
+    const sql = 'INSERT INTO books (title, pageqty) VALUES (?, ?)';
     const values = [title, pagesqty];
 
     conn.query(sql, values, (err) => {
@@ -92,6 +92,58 @@ app.get('/books/:id', (req, res) => {
         const book = data[0]
 
         res.render('book', {book})
+    })
+})
+
+// Editando
+app.get('/books/edit/:id', (req, res) => {
+    const id = req.params.id
+
+    const sql = `SELECT * FROM books WHERE id = ${id}`
+
+    conn.query(sql, function(err, data) {
+        if (err) {
+            console.log(err)
+            return
+        }
+
+        const book = data [0]
+        res.render('editbook', {book})
+    })
+})
+
+app.post('/books/updatebook', (req, res) => {
+    // Resgatando dados do form
+    const id = req.body.id
+    console.log(id)
+    const pageqty = req.body.pageqty
+    const title = req.body.title
+
+    const sql = `UPDATE books SET title = ?, pageqty = ? WHERE id = ?`;
+
+    conn.query(sql, [title, pageqty, id], function(err) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        res.redirect('/books');
+    });
+})
+
+// Rota para deletar
+app.post('/books/remove/:id', (req, res) => {
+    const id = req.params.id
+
+    const sql = `DELETE FROM books WHERE id = ${id}`
+
+    conn.query(sql, function(err) {
+        if (err) {
+            console.log(err)
+            return
+        }
+
+        res.redirect('/books')
     })
 })
 
